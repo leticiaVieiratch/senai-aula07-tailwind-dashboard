@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevPulse Analytics - Tailwind CSS Dashboard | SENAI</title>
+  <!-- Tailwind CSS via Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- TOPBAR DE NAVEGAÇÃO (Sticky, Flexbox, Posicionamento, Cores, Bordas) -->
+  <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 lg:px-8 py-3 transition-all duration-300">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      
+      <!-- LOGO & BADGE -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30 ring-1 ring-white/20">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-lg font-bold tracking-tight text-white">DevPulse</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">v2.4.0</span>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">SENAI Frameworks Front-End • Prof. Me. Deivison S. Takatu</p>
+        </div>
+      </div>
+
+      <!-- STATUS DA APLICAÇÃO & USUÁRIO -->
+      <div class="flex items-center gap-3 sm:gap-6">
+        <!-- Live Status indicator -->
+        <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-xs">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span class="text-slate-300 font-medium">Pipeline Ativo</span>
+        </div>
+
+        <!-- Ação Rápida -->
+        <button id="btn-sync" onclick="syncData()" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm shadow-blue-500/20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900">
+          <svg class="w-4 h-4 animate-spin-hover" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span class="hidden sm:inline">Sincronizar</span>
+        </button>
+
+        <!-- Perfil do Usuário -->
+        <div class="flex items-center gap-2.5 pl-3 border-l border-slate-800">
+          <div class="w-8 h-8 rounded-full bg-slate-700 text-slate-200 flex items-center justify-center font-bold text-xs ring-2 ring-blue-500/40">
+            DT
+          </div>
+          <div class="hidden xl:block text-left text-xs leading-tight">
+            <div class="font-semibold text-slate-200">Devison Takatu</div>
+            <div class="text-slate-400">Professor / Coord.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL (Layout Grid Responsivo: Sidebar + Dashboard) -->
+  <div class="max-w-7xl w-full mx-auto px-4 lg:px-8 py-8 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+    <!-- SIDEBAR DE NAVEGAÇÃO LATERAL (3 colunas em lg, oculta em mobile/sm) -->
+    <aside class="lg:col-span-3 space-y-6">
+      
+      <!-- MENU DE NAVEGAÇÃO -->
+      <nav class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 px-3 mb-3">Módulos do Sistema</h2>
+        <ul class="space-y-1.5 text-sm">
+          <li>
+            <a href="#metricas" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-blue-600/10 text-blue-400 font-semibold border border-blue-500/20 transition-colors">
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <span>Dashboard Analítico</span>
+            </a>
+          </li>
+          <li>
+            <a href="#projetos" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 font-medium transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              <span>Frameworks & Módulos</span>
+            </a>
+          </li>
+          <li>
+            <a href="#cadastro" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 font-medium transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Novo Deploy</span>
+            </a>
+          </li>
+          <li>
+            <a href="#tailwind-classes" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 font-medium transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Guia de Classes</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- CARD INFORMATIVO / BANNER ACADÊMICO -->
+      <div class="bg-gradient-to-br from-indigo-950/60 via-slate-900 to-slate-900 border border-indigo-800/40 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+        <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none"></div>
+        <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-2">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+          </svg>
+          Tailwind CSS v4 Spec
+        </div>
+        <p class="text-xs text-slate-300 leading-relaxed mb-4">
+          Projeto construído com abordagem <strong>Utility-First</strong>, eliminando context-switching e reduzindo CSS duplicado em até 85%.
+        </p>
+        <div class="bg-slate-950/70 rounded-lg p-2.5 border border-slate-800 text-[11px] font-mono text-emerald-400">
+          $ npx tailwindcss -i input.css -o output.css --minify
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ÁREA PRINCIPAL DO DASHBOARD (9 colunas em lg) -->
+    <main class="lg:col-span-9 space-y-8">
+
+      <!-- BANNER DE BOAS-VINDAS & RESUMO -->
+      <section class="bg-gradient-to-r from-slate-900 via-slate-800/90 to-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-2xl">
+        <div class="absolute -right-16 -top-16 w-56 h-56 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold mb-3 border border-blue-500/20">
+            <span>🚀 Atividade 02 - Frameworks CSS</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+            Ecossistema de Componentização & Estilização Utilitária
+          </h1>
+          <p class="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed">
+            Painel interativo demonstrando mais de 30 classes atômicas do Tailwind CSS: sistemas de cor, grids dinâmicos, alinhamentos flexbox, transições, estados de hover e design 100% responsivo.
+          </p>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 1: CARDS DE MÉTRICAS / KPIS (Grid Responsivo 1, 2 e 4 colunas) -->
+      <section id="metricas" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+            Métricas de Compilação & Performance
+          </h2>
+          <span class="text-xs text-slate-400">Atualizado há instantes</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <!-- KPI 1: Performance -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-lg relative group">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-medium uppercase tracking-wider text-slate-400">Lighthouse Score</span>
+              <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-xs">
+                99
+              </span>
+            </div>
+            <div class="text-3xl font-extrabold text-white tracking-tight">99.4%</div>
+            <div class="mt-2 flex items-center gap-1.5 text-xs text-emerald-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              <span>+3.2% vs CSS legado</span>
+            </div>
+          </div>
+
+          <!-- KPI 2: Bundle Size -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-lg relative group">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-medium uppercase tracking-wider text-slate-400">CSS Gzip Size</span>
+              <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-xs">
+                KB
+              </span>
+            </div>
+            <div class="text-3xl font-extrabold text-white tracking-tight">14.2 KB</div>
+            <div class="mt-2 flex items-center gap-1.5 text-xs text-slate-400">
+              <span>Purged via JIT Engine</span>
+            </div>
+          </div>
+
+          <!-- KPI 3: Classes Atômicas Utilizadas -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-lg relative group">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-medium uppercase tracking-wider text-slate-400">Classes Únicas</span>
+              <span class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-xs">
+                30+
+              </span>
+            </div>
+            <div class="text-3xl font-extrabold text-white tracking-tight">48 Classes</div>
+            <div class="mt-2 flex items-center gap-1.5 text-xs text-indigo-400">
+              <span>8 categorias completas</span>
+            </div>
+          </div>
+
+          <!-- KPI 4: Uptime da API -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-lg relative group">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-medium uppercase tracking-wider text-slate-400">API Status</span>
+              <span class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-xs">
+                200
+              </span>
+            </div>
+            <div class="text-3xl font-extrabold text-white tracking-tight">100.0%</div>
+            <div class="mt-2 flex items-center gap-1.5 text-xs text-amber-400">
+              <span>Express.js / REST Ready</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SEÇÃO 2: TABELA DE FRAMEWORKS E PROJETOS ATIVOS (Flex, Overflow, Tabela, Badges) -->
+      <section id="projetos" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-lg font-bold text-white tracking-tight">Frameworks Avaliados na Disciplina</h2>
+            <p class="text-xs text-slate-400">Matriz de comparação técnica e status de implementação do cronograma</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400 font-mono">Filtro:</span>
+            <span class="px-2.5 py-1 rounded-md bg-slate-800 text-xs font-medium text-slate-200 border border-slate-700">Todos (4)</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <th class="py-3 px-4">Framework / Ferramenta</th>
+                <th class="py-3 px-4">Paradigma Principal</th>
+                <th class="py-3 px-4">Progresso de Aulas</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4 text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 font-medium">
+              
+              <!-- Linha 1: Tailwind CSS -->
+              <tr class="hover:bg-slate-800/40 transition-colors">
+                <td class="py-3.5 px-4 flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs">
+                    TW
+                  </div>
+                  <div>
+                    <div class="font-semibold text-white">Tailwind CSS</div>
+                    <div class="text-xs text-slate-400">Utility-First CSS Engine</div>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-xs text-slate-300">Atômico / Pré-compilado</td>
+                <td class="py-3.5 px-4">
+                  <div class="w-32 bg-slate-800 rounded-full h-2 overflow-hidden">
+                    <div class="bg-sky-500 h-2 rounded-full w-full"></div>
+                  </div>
+                  <span class="text-[11px] text-slate-400 mt-1 block">100% Concluído</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Concluído
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button class="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700">Detalhes</button>
+                </td>
+              </tr>
+
+              <!-- Linha 2: React.js -->
+              <tr class="hover:bg-slate-800/40 transition-colors">
+                <td class="py-3.5 px-4 flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">
+                    RE
+                  </div>
+                  <div>
+                    <div class="font-semibold text-white">React.js 18+</div>
+                    <div class="text-xs text-slate-400">Component-Based Virtual DOM</div>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-xs text-slate-300">Declarativo / Hooks</td>
+                <td class="py-3.5 px-4">
+                  <div class="w-32 bg-slate-800 rounded-full h-2 overflow-hidden">
+                    <div class="bg-blue-500 h-2 rounded-full w-3/4"></div>
+                  </div>
+                  <span class="text-[11px] text-slate-400 mt-1 block">75% Em Progresso</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> Em Aula
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button class="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700">Detalhes</button>
+                </td>
+              </tr>
+
+              <!-- Linha 3: Express.js (Node Backend) -->
+              <tr class="hover:bg-slate-800/40 transition-colors">
+                <td class="py-3.5 px-4 flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">
+                    EX
+                  </div>
+                  <div>
+                    <div class="font-semibold text-white">Node.js + Express</div>
+                    <div class="text-xs text-slate-400">RESTful API / JSON Server</div>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-xs text-slate-300">Middlewares / Endpoints</td>
+                <td class="py-3.5 px-4">
+                  <div class="w-32 bg-slate-800 rounded-full h-2 overflow-hidden">
+                    <div class="bg-amber-500 h-2 rounded-full w-1/2"></div>
+                  </div>
+                  <span class="text-[11px] text-slate-400 mt-1 block">50% Planejado</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Aula 05/06
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button class="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700">Detalhes</button>
+                </td>
+              </tr>
+
+              <!-- Linha 4: Vanilla JS -->
+              <tr class="hover:bg-slate-800/40 transition-colors">
+                <td class="py-3.5 px-4 flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-400 flex items-center justify-center font-bold text-xs">
+                    JS
+                  </div>
+                  <div>
+                    <div class="font-semibold text-white">Vanilla JavaScript (ES6+)</div>
+                    <div class="text-xs text-slate-400">DOM Nativo & Web APIs</div>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-xs text-slate-300">Imperativo / Modular</td>
+                <td class="py-3.5 px-4">
+                  <div class="w-32 bg-slate-800 rounded-full h-2 overflow-hidden">
+                    <div class="bg-emerald-500 h-2 rounded-full w-full"></div>
+                  </div>
+                  <span class="text-[11px] text-slate-400 mt-1 block">100% Entregue</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Concluído
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button class="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700">Detalhes</button>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 3: FORMULÁRIO RÁPIDO & FEED DE ATIVIDADES (Grid de 2 Colunas) -->
+      <section id="cadastro" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- FORMULÁRIO DE NOVO COMPONENTE COM TAILWIND FORM UTILITIES -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-base font-bold text-white tracking-tight flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Cadastrar Novo Componente
+            </h3>
+            <span class="text-xs text-slate-400">Utility-First Form</span>
+          </div>
+
+          <form id="form-componente" onsubmit="event.preventDefault(); addComponent();" class="space-y-4">
+            <div>
+              <label for="comp-nome" class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">Nome do Componente</label>
+              <input type="text" id="comp-nome" placeholder="Ex: Navbar, UserCard, ModalDialog" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="comp-tipo" class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">Categoria</label>
+                <select id="comp-tipo" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                  <option value="Organism">Organism (Complexo)</option>
+                  <option value="Molecule">Molecule (Médio)</option>
+                  <option value="Atom">Atom (Básico)</option>
+                </select>
+              </div>
+              <div>
+                <label for="comp-estilo" class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">Motor de Estilo</label>
+                <select id="comp-estilo" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                  <option value="Tailwind">Tailwind CSS</option>
+                  <option value="CSS Modules">CSS Modules</option>
+                  <option value="Styled Components">Styled Components</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="comp-desc" class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">Descrição Técnica</label>
+              <textarea id="comp-desc" rows="2" placeholder="Descreva os requisitos de acessibilidade e props..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-98 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all duration-200 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Salvar Componente no Design System
+            </button>
+          </form>
+        </div>
+
+        <!-- TIMELINE DE DEPLOYS E ATIVIDADES -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+              <h3 class="text-base font-bold text-white tracking-tight flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Histórico de Integração Contínua
+              </h3>
+              <span class="text-xs text-slate-400">Git Commits</span>
+            </div>
+
+            <div class="space-y-4 relative before:absolute before:inset-0 before:left-3.5 before:w-0.5 before:bg-slate-800">
+              
+              <!-- Evento 1 -->
+              <div class="relative flex items-start gap-3 pl-2">
+                <div class="w-3 h-3 rounded-full bg-emerald-500 mt-1 ring-4 ring-slate-900 z-10"></div>
+                <div>
+                  <div class="text-xs font-semibold text-slate-200">Deploy #104 em Produção (Vercel)</div>
+                  <div class="text-[11px] text-slate-400 font-mono">commit f839a1c • main branch</div>
+                  <p class="text-xs text-slate-300 mt-0.5">Adicionados 20 componentes com Box Model & Flexbox externos.</p>
+                </div>
+              </div>
+
+              <!-- Evento 2 -->
+              <div class="relative flex items-start gap-3 pl-2">
+                <div class="w-3 h-3 rounded-full bg-blue-500 mt-1 ring-4 ring-slate-900 z-10"></div>
+                <div>
+                  <div class="text-xs font-semibold text-slate-200">Configuração do Tailwind CSS Engine</div>
+                  <div class="text-[11px] text-slate-400 font-mono">commit d92a47e • feature/tailwind</div>
+                  <p class="text-xs text-slate-300 mt-0.5">Integração do Play CDN e estrutura de classes atômicas categorizadas.</p>
+                </div>
+              </div>
+
+              <!-- Evento 3 -->
+              <div class="relative flex items-start gap-3 pl-2">
+                <div class="w-3 h-3 rounded-full bg-slate-600 mt-1 ring-4 ring-slate-900 z-10"></div>
+                <div>
+                  <div class="text-xs font-semibold text-slate-400">Release Inicial do Repositório</div>
+                  <div class="text-[11px] text-slate-500 font-mono">commit 0a72cb1 • init</div>
+                  <p class="text-xs text-slate-400 mt-0.5">Setup da disciplina e documentação técnica ABNT.</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+            <span>Ambiente: <strong>Production-Edge</strong></span>
+            <span class="text-emerald-400 font-mono">Latência: 12ms</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- SEÇÃO 4: RESUMO DAS CLASSES TAILWIND UTILIZADAS NA APLICAÇÃO -->
+      <section id="tailwind-classes" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h2 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+            </svg>
+            Catálogo de Classes Atômicas Aplicadas (30+ Requisitadas)
+          </h2>
+          <span class="px-2.5 py-1 rounded-md bg-sky-500/10 text-sky-400 border border-sky-500/20 text-xs font-semibold">Exigência Atividade 02</span>
+        </div>
+
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Abaixo estão listados os grupos e exemplos práticos das classes Tailwind implementadas nesta página, com seus equivalentes nativos de CSS e aplicações:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+          
+          <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 space-y-1.5">
+            <span class="font-bold text-blue-400 uppercase tracking-wide">1. Cores</span>
+            <ul class="text-slate-400 space-y-1 font-mono text-[11px]">
+              <li><strong class="text-slate-200">bg-slate-950</strong> &rarr; #020617</li>
+              <li><strong class="text-slate-200">bg-blue-600</strong> &rarr; #2563eb</li>
+              <li><strong class="text-slate-200">text-emerald-400</strong> &rarr; #34d399</li>
+              <li><strong class="text-slate-200">text-white</strong> &rarr; #ffffff</li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 space-y-1.5">
+            <span class="font-bold text-indigo-400 uppercase tracking-wide">2. Tipografia</span>
+            <ul class="text-slate-400 space-y-1 font-mono text-[11px]">
+              <li><strong class="text-slate-200">text-3xl</strong> &rarr; font-size: 1.875rem</li>
+              <li><strong class="text-slate-200">font-extrabold</strong> &rarr; font-weight: 800</li>
+              <li><strong class="text-slate-200">tracking-tight</strong> &rarr; letter-spacing: -0.025em</li>
+              <li><strong class="text-slate-200">uppercase</strong> &rarr; text-transform: uppercase</li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 space-y-1.5">
+            <span class="font-bold text-emerald-400 uppercase tracking-wide">3. Espaçamentos</span>
+            <ul class="text-slate-400 space-y-1 font-mono text-[11px]">
+              <li><strong class="text-slate-200">p-6 / px-4 / py-3</strong> &rarr; padding</li>
+              <li><strong class="text-slate-200">mx-auto</strong> &rarr; margin-inline: auto</li>
+              <li><strong class="text-slate-200">gap-4 / gap-8</strong> &rarr; gap: 1rem / 2rem</li>
+              <li><strong class="text-slate-200">space-y-4</strong> &rarr; margin-top child</li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 space-y-1.5">
+            <span class="font-bold text-amber-400 uppercase tracking-wide">4. Flex & Grid</span>
+            <ul class="text-slate-400 space-y-1 font-mono text-[11px]">
+              <li><strong class="text-slate-200">flex / flex-col</strong> &rarr; display: flex</li>
+              <li><strong class="text-slate-200">items-center</strong> &rarr; align-items: center</li>
+              <li><strong class="text-slate-200">justify-between</strong> &rarr; justify-content: space-between</li>
+              <li><strong class="text-slate-200">grid-cols-12</strong> &rarr; repeat(12, minmax(0, 1fr))</li>
+            </ul>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER (Posicionamento Fixo, Z-Index) -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-slate-900 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3">
+    <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">✓</div>
+    <span id="toast-msg" class="text-sm font-medium">Dados sincronizados com sucesso!</span>
+  </div>
+
+  <!-- FOOTER ACADÊMICO (Bordas, Cores, Tipografia, Espaçamento) -->
+  <footer class="mt-auto border-t border-slate-800 bg-slate-950 py-6 px-4 lg:px-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p>SENAI • Especialização Técnica em Front-End Frameworks • 2026</p>
+      <p class="font-mono text-slate-400">Atividade 02 - Frameworks CSS (Box Model, Flexbox & Tailwind CSS)</p>
+      <p>Docente: <strong>Prof. Me. Deivison S. Takatu</strong></p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT PARA INTERATIVIDADE DEMO -->
+  <script>
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.innerText = message;
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      }, 3000);
+    }
+
+    function syncData() {
+      showToast('Compilação e Purge de classes Tailwind simulados com sucesso!');
+    }
+
+    function addComponent() {
+      const nome = document.getElementById('comp-nome').value;
+      const tipo = document.getElementById('comp-tipo').value;
+      showToast(`Componente "${nome}" (${tipo}) registrado no Design System!`);
+      document.getElementById('form-componente').reset();
+    }
+  </script>
+</body>
+</html>
